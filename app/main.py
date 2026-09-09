@@ -1,7 +1,7 @@
 from crawler.crawler import crawl_page
 
 
-url = "https://example.com"
+url = "https://ceylonempiretravels.com/"
 
 result = crawl_page(url)
 
