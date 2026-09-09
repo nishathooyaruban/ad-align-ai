@@ -6,10 +6,76 @@ SCORING_RUBRIC = {
             "the keyword, ad headline, and ad promises."
         ),
         "criteria": {
-            "keyword_alignment": 25,
-            "headline_alignment": 25,
-            "ad_description_alignment": 25,
-            "promise_consistency": 25,
+            "keyword_alignment": {
+                "max_points": 25,
+                "guidance": (
+                    "Score based on how directly the landing page "
+                    "supports the search keyword.\n\n"
+                    "22-25: Keyword or very close semantic equivalent "
+                    "is clearly and repeatedly supported.\n"
+                    "16-21: Keyword intent is mostly supported but "
+                    "wording or topic coverage is less direct.\n"
+                    "10-15: Partial topical overlap exists, but the "
+                    "keyword intent is only partly supported.\n"
+                    "0-9: Little or no meaningful keyword support."
+                ),
+            },
+
+            "headline_alignment": {
+                "max_points": 25,
+                "guidance": (
+                    "Score how well the landing page supports the "
+                    "main message in the ad headline.\n\n"
+                    "22-25: Headline message is strongly and directly "
+                    "supported.\n"
+                    "16-21: Most of the headline is supported, with "
+                    "some missing or indirect elements.\n"
+                    "10-15: Only part of the headline is supported.\n"
+                    "0-9: Headline is poorly supported or unrelated."
+                ),
+            },
+
+            "ad_description_alignment": {
+                "max_points": 25,
+                "guidance": (
+                    "Evaluate each meaningful promise in the ad "
+                    "description separately before assigning points.\n\n"
+                    "22-25: Almost every important promise is directly "
+                    "supported by landing-page evidence. No major "
+                    "promise is missing.\n"
+                    "16-21: Most promises are supported, but one "
+                    "meaningful promise is missing, indirect, or "
+                    "only partially supported.\n"
+                    "10-15: Some promises are supported, but two or "
+                    "more important promises are missing or not "
+                    "explicitly supported.\n"
+                    "0-9: Very little of the ad description is "
+                    "supported by the landing page.\n\n"
+                    "Important rule: Do not treat related wording as "
+                    "proof of a specific promise. For example, "
+                    "'personalized tours' does not automatically prove "
+                    "'private tours', and 'get quote' does not prove "
+                    "'free quote'."
+                ),
+            },
+
+            "promise_consistency": {
+                "max_points": 25,
+                "guidance": (
+                    "Score whether the promises made by the ad are "
+                    "consistent with what the landing page actually "
+                    "presents.\n\n"
+                    "22-25: Ad promises are highly consistent with the "
+                    "page and no major contradiction or unsupported "
+                    "claim exists.\n"
+                    "16-21: Mostly consistent, but one or more promises "
+                    "lack complete support.\n"
+                    "10-15: Several promises are only partly supported "
+                    "or create noticeable expectation gaps.\n"
+                    "0-9: Major promises are unsupported, misleading, "
+                    "or inconsistent with the page."
+                ),
+            },
         },
     },
 
@@ -20,10 +86,39 @@ SCORING_RUBRIC = {
             "the likely intent behind the search keyword."
         ),
         "criteria": {
-            "topic_relevance": 30,
-            "intent_satisfaction": 30,
-            "content_focus": 20,
-            "irrelevant_content_penalty": 20,
+            "topic_relevance": {
+                "max_points": 30,
+                "guidance": (
+                    "Score how directly the landing page topic matches "
+                    "the search topic."
+                ),
+            },
+
+            "intent_satisfaction": {
+                "max_points": 30,
+                "guidance": (
+                    "Score whether the page gives the visitor the "
+                    "information or action needed to satisfy the likely "
+                    "search intent."
+                ),
+            },
+
+            "content_focus": {
+                "max_points": 20,
+                "guidance": (
+                    "Score how strongly the page remains focused on "
+                    "the relevant search topic."
+                ),
+            },
+
+            "irrelevant_content_penalty": {
+                "max_points": 20,
+                "guidance": (
+                    "Higher points mean less harmful irrelevant content. "
+                    "Reduce points when unrelated content distracts from "
+                    "the user's search intent."
+                ),
+            },
         },
     },
 
@@ -35,10 +130,37 @@ SCORING_RUBRIC = {
             "the advertisement promises."
         ),
         "criteria": {
-            "offer_presence": 30,
-            "offer_consistency": 30,
-            "offer_details": 20,
-            "offer_clarity": 20,
+            "offer_presence": {
+                "max_points": 30,
+                "guidance": (
+                    "Score whether the advertised product or service "
+                    "offer is clearly present on the landing page."
+                ),
+            },
+
+            "offer_consistency": {
+                "max_points": 30,
+                "guidance": (
+                    "Score how consistently the landing-page offer "
+                    "matches the advertised offer."
+                ),
+            },
+
+            "offer_details": {
+                "max_points": 20,
+                "guidance": (
+                    "Score whether enough useful details are supplied "
+                    "to understand the offer."
+                ),
+            },
+
+            "offer_clarity": {
+                "max_points": 20,
+                "guidance": (
+                    "Score how clearly the visitor can understand "
+                    "what is being offered."
+                ),
+            },
         },
     },
 
@@ -50,11 +172,44 @@ SCORING_RUBRIC = {
             "take the intended action."
         ),
         "criteria": {
-            "primary_cta_exists": 25,
-            "cta_matches_ad_offer": 25,
-            "cta_specificity": 20,
-            "action_available": 15,
-            "action_clarity": 15,
+            "primary_cta_exists": {
+                "max_points": 25,
+                "guidance": (
+                    "Score whether a clear primary call to action "
+                    "exists."
+                ),
+            },
+
+            "cta_matches_ad_offer": {
+                "max_points": 25,
+                "guidance": (
+                    "Score whether the call to action directly supports "
+                    "the action or offer promised in the advertisement."
+                ),
+            },
+
+            "cta_specificity": {
+                "max_points": 20,
+                "guidance": (
+                    "Score how specific the CTA wording is about what "
+                    "the visitor will do or receive."
+                ),
+            },
+
+            "action_available": {
+                "max_points": 15,
+                "guidance": (
+                    "Score whether the visitor has an actual available "
+                    "path to take the intended action."
+                ),
+            },
+
+            "action_clarity": {
+                "max_points": 15,
+                "guidance": (
+                    "Score how clearly the next step is communicated."
+                ),
+            },
         },
     },
 
@@ -66,11 +221,47 @@ SCORING_RUBRIC = {
             "and its claims."
         ),
         "criteria": {
-            "business_identity": 20,
-            "contact_information": 15,
-            "customer_evidence": 25,
-            "experience_or_credentials": 20,
-            "verifiable_trust_signals": 20,
+            "business_identity": {
+                "max_points": 20,
+                "guidance": (
+                    "Score whether the business identity is clearly "
+                    "present and understandable."
+                ),
+            },
+
+            "contact_information": {
+                "max_points": 15,
+                "guidance": (
+                    "Score the quality and availability of contact "
+                    "information."
+                ),
+            },
+
+            "customer_evidence": {
+                "max_points": 25,
+                "guidance": (
+                    "Score customer testimonials, reviews, case evidence, "
+                    "or similar trust-supporting material."
+                ),
+            },
+
+            "experience_or_credentials": {
+                "max_points": 20,
+                "guidance": (
+                    "Score evidence of experience, expertise, credentials, "
+                    "or qualifications."
+                ),
+            },
+
+            "verifiable_trust_signals": {
+                "max_points": 20,
+                "guidance": (
+                    "Score independently verifiable trust signals more "
+                    "highly than self-reported claims. Do not treat "
+                    "unsupported marketing claims as independently "
+                    "verified evidence."
+                ),
+            },
         },
     },
 
@@ -83,11 +274,47 @@ SCORING_RUBRIC = {
             "action. It does not predict conversion rate."
         ),
         "criteria": {
-            "offer_clarity": 20,
-            "cta_accessibility": 20,
-            "trust_support": 20,
-            "decision_information": 20,
-            "conversion_friction": 20,
+            "offer_clarity": {
+                "max_points": 20,
+                "guidance": (
+                    "Score whether the visitor can clearly understand "
+                    "the offer."
+                ),
+            },
+
+            "cta_accessibility": {
+                "max_points": 20,
+                "guidance": (
+                    "Score whether the visitor has an accessible path "
+                    "to take action based on supplied evidence."
+                ),
+            },
+
+            "trust_support": {
+                "max_points": 20,
+                "guidance": (
+                    "Score whether enough trust evidence exists to "
+                    "support a visitor's decision."
+                ),
+            },
+
+            "decision_information": {
+                "max_points": 20,
+                "guidance": (
+                    "Score whether the visitor has enough practical "
+                    "information to make a decision."
+                ),
+            },
+
+            "conversion_friction": {
+                "max_points": 20,
+                "guidance": (
+                    "Higher points mean lower apparent friction. "
+                    "Reduce points when missing information, unclear "
+                    "forms, unclear next steps, or unsupported promises "
+                    "could make conversion harder."
+                ),
+            },
         },
     },
 }
@@ -101,7 +328,8 @@ def validate_rubric():
     for dimension, rubric in SCORING_RUBRIC.items():
 
         total = sum(
-            rubric["criteria"].values()
+            criterion["max_points"]
+            for criterion in rubric["criteria"].values()
         )
 
         if total != 100:

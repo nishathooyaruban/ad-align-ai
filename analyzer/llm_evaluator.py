@@ -32,9 +32,25 @@ GROUNDING RULES:
 - If evidence is insufficient, explicitly say so.
 - Do not choose an overall score independently.
 - Score each rubric criterion separately.
+- Follow the scoring guidance supplied for each criterion.
 - Never award more than the criterion's maximum points.
 - The dimension score MUST equal the sum of its
   criterion scores.
+
+When a criterion includes score ranges or examples,
+use those ranges to reduce arbitrary scoring variation.
+
+Do not treat semantically related wording as proof of
+a more specific claim.
+
+Examples:
+
+- "Personalized tours" does not automatically prove
+  "private tours".
+- "Get quote" does not automatically prove
+  "free quote".
+- A business claim does not automatically count as
+  independently verified evidence.
 
 Conversion Readiness measures whether the supplied
 landing-page evidence supports a visitor taking the
@@ -66,8 +82,14 @@ def build_evaluation_payload(
         },
 
         "landing_page": {
-            "url": page_data.get("url", ""),
-            "title": page_data.get("title", ""),
+            "url": page_data.get(
+                "url",
+                "",
+            ),
+            "title": page_data.get(
+                "title",
+                "",
+            ),
             "meta_description": page_data.get(
                 "meta_description",
                 "",
@@ -171,12 +193,19 @@ LANDING PAGE EVIDENCE:
 
 {evidence_json}
 
+IMPORTANT SCORING PROCESS:
+
 For every criterion:
 
-1. Give "points_awarded".
-2. Give "max_points".
-3. Explain why those points were awarded.
-4. Provide evidence from the supplied data.
+1. Read its maximum score.
+2. Read its scoring guidance.
+3. Evaluate only the supplied evidence.
+4. Award points consistent with the guidance.
+5. Explain why those exact points were awarded.
+6. List the supporting evidence.
+7. Do not invent evidence.
+8. Do not award credit for a specific claim unless
+   that specific claim is supported.
 
 The overall score for each dimension must equal the
 sum of its criterion points.
@@ -188,25 +217,21 @@ Return JSON using this structure:
         "criteria": {{
             "keyword_alignment": {{
                 "points_awarded": 0,
-                "max_points": 25,
                 "reason": "",
                 "evidence": []
             }},
             "headline_alignment": {{
                 "points_awarded": 0,
-                "max_points": 25,
                 "reason": "",
                 "evidence": []
             }},
             "ad_description_alignment": {{
                 "points_awarded": 0,
-                "max_points": 25,
                 "reason": "",
                 "evidence": []
             }},
             "promise_consistency": {{
                 "points_awarded": 0,
-                "max_points": 25,
                 "reason": "",
                 "evidence": []
             }}
@@ -256,11 +281,10 @@ Return JSON using this structure:
 
 def validate_llm_evaluation(evaluation):
     """
-    Validate the LLM output against the scoring rubric
-    and calculate final scores ourselves.
+    Validate the LLM output against the scoring rubric.
 
-    The LLM does NOT get final authority over the
-    dimension score.
+    Final dimension scores are always calculated
+    deterministically in Python.
     """
 
     rubric = get_scoring_rubric()
@@ -275,7 +299,9 @@ def validate_llm_evaluation(evaluation):
                 f"{dimension}"
             )
 
-        llm_dimension = evaluation[dimension]
+        llm_dimension = evaluation[
+            dimension
+        ]
 
         llm_criteria = llm_dimension.get(
             "criteria",
@@ -286,20 +312,31 @@ def validate_llm_evaluation(evaluation):
 
         calculated_score = 0
 
-        for criterion, max_points in (
-            dimension_rubric["criteria"].items()
-        ):
+        for (
+            criterion_name,
+            criterion_rubric,
+        ) in dimension_rubric[
+            "criteria"
+        ].items():
 
-            if criterion not in llm_criteria:
+            if criterion_name not in llm_criteria:
                 raise ValueError(
                     f"Missing criterion "
-                    f"'{criterion}' in "
+                    f"'{criterion_name}' in "
                     f"'{dimension}'."
                 )
 
-            criterion_result = llm_criteria[
-                criterion
-            ]
+            max_points = (
+                criterion_rubric[
+                    "max_points"
+                ]
+            )
+
+            criterion_result = (
+                llm_criteria[
+                    criterion_name
+                ]
+            )
 
             points = criterion_result.get(
                 "points_awarded",
@@ -307,67 +344,107 @@ def validate_llm_evaluation(evaluation):
             )
 
             try:
-                points = float(points)
-            except (TypeError, ValueError):
-                raise ValueError(
-                    f"Invalid score for "
-                    f"{dimension}.{criterion}"
+
+                points = float(
+                    points
                 )
 
-            # Prevent scores below zero
+            except (
+                TypeError,
+                ValueError,
+            ):
+
+                raise ValueError(
+                    f"Invalid score for "
+                    f"{dimension}."
+                    f"{criterion_name}"
+                )
+
             points = max(
                 0,
                 points,
             )
 
-            # Prevent scores above rubric maximum
             points = min(
                 points,
                 max_points,
             )
 
-            # Convert whole-number floats to integers
             if points.is_integer():
-                points = int(points)
+                points = int(
+                    points
+                )
 
-            calculated_score += points
+            calculated_score += (
+                points
+            )
 
-            validated_criteria[criterion] = {
-                "points_awarded": points,
-                "max_points": max_points,
-                "reason": criterion_result.get(
-                    "reason",
-                    "",
-                ),
-                "evidence": criterion_result.get(
+            evidence = (
+                criterion_result.get(
                     "evidence",
                     [],
+                )
+            )
+
+            if not isinstance(
+                evidence,
+                list,
+            ):
+                evidence = [
+                    str(
+                        evidence
+                    )
+                ]
+
+            validated_criteria[
+                criterion_name
+            ] = {
+                "points_awarded": points,
+                "max_points": max_points,
+                "reason": (
+                    criterion_result.get(
+                        "reason",
+                        "",
+                    )
                 ),
+                "evidence": evidence,
             }
 
-        if isinstance(calculated_score, float):
+        if isinstance(
+            calculated_score,
+            float,
+        ):
+
             calculated_score = round(
                 calculated_score,
                 2,
             )
 
-        validated_result[dimension] = {
-            "name": dimension_rubric["name"],
-            "criteria": validated_criteria,
-
-            # IMPORTANT:
-            # This score is calculated by Python,
-            # not trusted directly from the LLM.
-            "score": calculated_score,
-
-            "explanation": llm_dimension.get(
-                "explanation",
-                "",
+        validated_result[
+            dimension
+        ] = {
+            "name": (
+                dimension_rubric[
+                    "name"
+                ]
             ),
-
-            "recommendation": llm_dimension.get(
-                "recommendation",
-                "",
+            "criteria": (
+                validated_criteria
+            ),
+            "score": (
+                calculated_score
+            ),
+            "explanation": (
+                llm_dimension.get(
+                    "explanation",
+                    "",
+                )
+            ),
+            "recommendation": (
+                llm_dimension.get(
+                    "recommendation",
+                    "",
+                )
             ),
         }
 
@@ -415,11 +492,13 @@ def evaluate_with_llm(payload):
         )
 
     try:
+
         evaluation = json.loads(
             raw_text
         )
 
     except json.JSONDecodeError as error:
+
         raise ValueError(
             "The LLM response was not valid JSON.\n"
             f"Raw response:\n{raw_text}"
