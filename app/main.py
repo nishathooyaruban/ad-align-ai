@@ -1,38 +1,49 @@
 from crawler.crawler import crawl_page
+from analyzer.relevance_analyzer import analyze_relevance
 
 
 url = "https://ceylonempiretravels.com/"
 
-result = crawl_page(url)
+keyword = "Sri Lanka tour packages"
 
-print("\n=== ADALIGN AI — LANDING PAGE EVIDENCE ===")
+ad_headline = "Best Sri Lanka Tour Packages"
 
-print("\nURL:")
-print(result["url"])
+ad_description = (
+    "Custom private tours with experienced local guides. "
+    "Get a free quote today."
+)
 
-print("\nTITLE:")
-print(result["title"])
+page_data = crawl_page(url)
 
-print("\nMETA DESCRIPTION:")
-print(result["meta_description"])
+analysis = analyze_relevance(
+    keyword=keyword,
+    ad_headline=ad_headline,
+    ad_description=ad_description,
+    page_data=page_data,
+)
 
-print("\nHEADINGS:")
-print(result["headings"])
+print("\n=== ADALIGN AI — RELEVANCE ANALYSIS ===")
 
-print("\nPARAGRAPHS:")
-print(result["paragraphs"])
+print("\nKEYWORD:")
+print(analysis["keyword"])
 
-print("\nLINKS:")
-print(result["links"])
+print("\nKEYWORD FOUND ON PAGE:")
+print(analysis["keyword_found_on_page"])
 
-print("\nBUTTONS:")
-print(result["buttons"])
+print("\nHEADLINE WORDS:")
+print(analysis["headline_words"])
 
-print("\nFORMS:")
-print(result["form_count"])
+print("\nMATCHED HEADLINE WORDS:")
+print(analysis["matched_headline_words"])
 
-print("\nIMAGES:")
-print(result["image_count"])
+print("\nHEADLINE MATCH COUNT:")
+print(analysis["headline_match_count"])
 
-print("\nIMAGES WITH ALT TEXT:")
-print(result["images_with_alt"])
+print("\nMESSAGE MATCH SCORE:")
+print(f'{analysis["message_match_score"]}/100')
+
+print("\nAD DESCRIPTION MATCH SCORE:")
+print(f'{analysis["description_match_score"]}/100')
+
+print("\nMATCHED DESCRIPTION WORDS:")
+print(analysis["matched_description_words"])
