@@ -16,8 +16,9 @@ You are the evaluation engine for AdAlign AI.
 AdAlign AI evaluates alignment between:
 
 1. A Google Ads keyword
-2. Google Ads copy
-3. The actual landing page
+2. Multiple Google Ads headline assets
+3. Multiple Google Ads description assets
+4. The actual landing page
 
 You MUST evaluate using only the supplied landing-page
 evidence and scoring rubric.
@@ -30,21 +31,22 @@ GROUNDING RULES:
 - Treat business claims as claims, not independently
   verified facts.
 - If evidence is insufficient, explicitly say so.
-- Do not choose an overall score independently.
 - Score each rubric criterion separately.
 - Follow the scoring guidance supplied for each criterion.
 - Never award more than the criterion's maximum points.
 - The dimension score MUST equal the sum of its
   criterion scores.
 
-When a criterion includes score ranges or examples,
-use those ranges to reduce arbitrary scoring variation.
+MULTI-ASSET RULES:
 
-Do not treat semantically related wording as proof of
-a more specific claim.
-
-Examples:
-
+- Evaluate all supplied headline assets.
+- Evaluate all supplied description assets.
+- Do not judge Message Match using only the strongest asset.
+- Identify weak or unsupported assets when they exist.
+- A weak headline or description can reduce overall
+  message alignment even if other assets are strong.
+- Do not treat semantically related wording as proof
+  of a more specific promise.
 - "Personalized tours" does not automatically prove
   "private tours".
 - "Get quote" does not automatically prove
@@ -64,8 +66,8 @@ Return valid JSON only.
 
 def build_evaluation_payload(
     keyword,
-    ad_headline,
-    ad_description,
+    ad_headlines,
+    ad_descriptions,
     page_data,
     deterministic_analysis,
 ):
@@ -77,8 +79,8 @@ def build_evaluation_payload(
     payload = {
         "advertisement": {
             "keyword": keyword,
-            "headline": ad_headline,
-            "description": ad_description,
+            "headlines": ad_headlines,
+            "descriptions": ad_descriptions,
         },
 
         "landing_page": {
@@ -131,10 +133,34 @@ def build_evaluation_payload(
                     False,
                 ),
 
-            "matched_headline_words":
+            "keyword_match_score":
                 deterministic_analysis.get(
-                    "matched_headline_words",
+                    "keyword_match_score",
+                    0,
+                ),
+
+            "headline_results":
+                deterministic_analysis.get(
+                    "headline_results",
                     [],
+                ),
+
+            "headline_average_score":
+                deterministic_analysis.get(
+                    "headline_average_score",
+                    0,
+                ),
+
+            "description_results":
+                deterministic_analysis.get(
+                    "description_results",
+                    [],
+                ),
+
+            "description_average_score":
+                deterministic_analysis.get(
+                    "description_average_score",
+                    0,
                 ),
 
             "message_match_score":
@@ -143,16 +169,16 @@ def build_evaluation_payload(
                     0,
                 ),
 
-            "matched_description_words":
+            "weakest_headline":
                 deterministic_analysis.get(
-                    "matched_description_words",
-                    [],
+                    "weakest_headline",
+                    None,
                 ),
 
-            "description_match_score":
+            "weakest_description":
                 deterministic_analysis.get(
-                    "description_match_score",
-                    0,
+                    "weakest_description",
+                    None,
                 ),
         },
     }
@@ -181,7 +207,7 @@ def build_user_prompt(payload):
     )
 
     return f"""
-Evaluate this Google Ad and landing page.
+Evaluate this Google Ads asset group and landing page.
 
 Use ONLY the supplied evidence and scoring rubric.
 
@@ -189,7 +215,7 @@ SCORING RUBRIC:
 
 {rubric_json}
 
-LANDING PAGE EVIDENCE:
+LANDING PAGE AND AD EVIDENCE:
 
 {evidence_json}
 
@@ -206,6 +232,16 @@ For every criterion:
 7. Do not invent evidence.
 8. Do not award credit for a specific claim unless
    that specific claim is supported.
+
+For Message Match:
+
+- Consider the keyword.
+- Consider every headline asset.
+- Consider every description asset.
+- Do not score only the strongest headline or description.
+- Mention important weak or unsupported assets.
+- Use the deterministic per-asset results as supporting
+  evidence, not as the sole authority.
 
 The overall score for each dimension must equal the
 sum of its criterion points.
