@@ -1,6 +1,8 @@
+from pathlib import Path
 from typing import List
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from crawler.crawler import crawl_page
@@ -19,6 +21,10 @@ app = FastAPI(
     ),
     version="1.0.0",
 )
+
+
+BASE_DIR = Path(__file__).resolve().parent
+INDEX_FILE = BASE_DIR / "templates" / "index.html"
 
 
 class AnalyzeRequest(BaseModel):
@@ -50,12 +56,18 @@ class AnalyzeRequest(BaseModel):
 @app.get("/")
 def root():
     """
-    Simple API root endpoint.
+    Serve the AdAlign AI web interface.
     """
 
-    return {
-        "message": "AdAlign AI API is running"
-    }
+    if not INDEX_FILE.exists():
+        raise HTTPException(
+            status_code=500,
+            detail="Web interface file was not found.",
+        )
+
+    return FileResponse(
+        INDEX_FILE
+    )
 
 
 @app.get("/health")

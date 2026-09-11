@@ -1,0 +1,9 @@
+services:
+  adalign-ai:
+    build: .
+    container_name: adalign-ai
+    ports:
+      - "8000:8000"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    restart: unless-stopped

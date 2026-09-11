@@ -1,0 +1,10 @@
+venv
+.venv
+.env
+__pycache__
+*.pyc
+.git
+.gitignore
+.streamlit
+.pytest_cache
+.vscode

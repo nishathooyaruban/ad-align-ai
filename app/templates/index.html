@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>AdAlign AI</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f9;
+            color: #1f2937;
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background: #111827;
+            color: white;
+            padding: 18px 0;
+        }
+
+        .top-bar-inner {
+            width: 92%;
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            color: #d1d5db;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1180px;
+            margin: 35px auto 60px auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+
+        .hero p {
+            max-width: 720px;
+            margin: 0 auto;
+            line-height: 1.6;
+            color: #6b7280;
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 28px;
+            border: 1px solid #e5e7eb;
+            box-shadow:
+                0 5px 20px
+                rgba(0, 0, 0, 0.05);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 23px;
+        }
+
+        .section-description {
+            margin-top: 0;
+            margin-bottom: 24px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            padding: 12px 14px;
+            font-size: 15px;
+            font-family: inherit;
+            background: white;
+            transition:
+                border-color 0.2s,
+                box-shadow 0.2s;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #4b5563;
+            box-shadow:
+                0 0 0 3px
+                rgba(75, 85, 99, 0.12);
+        }
+
+        textarea {
+            min-height: 135px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .analyze-button {
+            width: 100%;
+            margin-top: 24px;
+            padding: 14px 20px;
+            background: #111827;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition:
+                transform 0.15s,
+                opacity 0.15s;
+        }
+
+        .analyze-button:hover {
+            opacity: 0.92;
+        }
+
+        .analyze-button:active {
+            transform: scale(0.99);
+        }
+
+        .analyze-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .status-box {
+            margin-top: 20px;
+            padding: 13px 16px;
+            border-radius: 8px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .status-box.loading {
+            display: block;
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .status-box.success {
+            display: block;
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-box.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            margin-right: 8px;
+            border: 2px solid #d1d5db;
+            border-top-color: #374151;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .summary-item {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .summary-label {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .summary-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .score-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 22px;
+            background: #ffffff;
+        }
+
+        .score-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 14px;
+        }
+
+        .score-card h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .score-number {
+            font-size: 27px;
+            font-weight: 700;
+            color: #111827;
+            white-space: nowrap;
+        }
+
+        .score-label {
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 9px;
+            border-radius: 20px;
+        }
+
+        .strong {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .moderate {
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .weak {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .progress-background {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #374151;
+            border-radius: 10px;
+        }
+
+        .score-card p {
+            font-size: 14px;
+            line-height: 1.65;
+            color: #4b5563;
+        }
+
+        .recommendation-box {
+            margin-top: 14px;
+            padding: 13px;
+            background: #f9fafb;
+            border-left: 4px solid #6b7280;
+            border-radius: 5px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .recommendation-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+
+        .asset-section {
+            margin-top: 25px;
+        }
+
+        .asset-group {
+            margin-bottom: 30px;
+        }
+
+        .asset-group h3 {
+            margin-bottom: 15px;
+        }
+
+        .asset-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background: #fafafa;
+        }
+
+        .asset-text {
+            font-weight: 600;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .asset-score {
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #9ca3af;
+            padding: 25px 15px 40px;
+            font-size: 13px;
+        }
+
+        @media (
+            max-width: 720px
+        ) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .score-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .top-bar-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <header class="top-bar">
+        <div class="top-bar-inner">
+
+            <div class="brand">
+                AdAlign AI
+            </div>
+
+            <div class="brand-subtitle">
+                Evidence-Grounded Ads Analysis
+            </div>
+
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <section class="hero">
+
+            <h1>
+                Google Ads & Landing Page
+                Alignment Analyzer
+            </h1>
+
+            <p>
+                Evaluate whether your Google Ads keyword,
+                headline assets and description assets
+                are properly supported by the content
+                and conversion experience of your
+                landing page.
+            </p>
+
+        </section>
+
+
+        <section class="card">
+
+            <h2>
+                Campaign Input
+            </h2>
+
+            <p class="section-description">
+                Enter your target keyword, Google Ads
+                assets and landing-page URL.
+            </p>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="url">
+                        Landing Page URL
+                    </label>
+
+                    <input
+                        id="url"
+                        type="url"
+                        placeholder="https://example.com/"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="keyword">
+                        Target Keyword
+                    </label>
+
+                    <input
+                        id="keyword"
+                        type="text"
+                        placeholder="Sri Lanka tour packages"
+                    >
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label for="headlines">
+                        Google Ads Headline Assets
+                    </label>
+
+                    <span class="hint">
+                        Enter one headline per line.
+                    </span>
+
+                    <textarea
+                        id="headlines"
+                        placeholder="Best Sri Lanka Tour Packages&#10;Private Sri Lanka Tours&#10;Experienced Local Tour Guides"
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label for="descriptions">
+                        Google Ads Description Assets
+                    </label>
+
+                    <span class="hint">
+                        Enter one description per line.
+                    </span>
+
+                    <textarea
+                        id="descriptions"
+                        placeholder="Custom private tours with experienced local guides. Get a free quote today.&#10;Explore flexible Sri Lanka tour packages with local travel experts."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="analyzeButton"
+                class="analyze-button"
+                onclick="analyzeCampaign()"
+            >
+                Analyze Landing Page
+            </button>
+
+
+            <div
+                id="statusBox"
+                class="status-box"
+            ></div>
+
+        </section>
+
+
+        <section
+            id="summarySection"
+            class="card hidden"
+        >
+
+            <h2>
+                Campaign Summary
+            </h2>
+
+            <div
+                id="summaryGrid"
+                class="summary-grid"
+            ></div>
+
+        </section>
+
+
+        <section
+            id="resultsSection"
+            class="card hidden"
+        >
+
+            <h2>
+                AdAlign AI Scorecard
+            </h2>
+
+            <p class="section-description">
+                Evidence-grounded assessment across
+                six landing-page alignment dimensions.
+            </p>
+
+            <div
+                id="scoreGrid"
+                class="score-grid"
+            ></div>
+
+        </section>
+
+
+        <section
+            id="assetSection"
+            class="card hidden"
+        >
+
+            <h2>
+                Ad Asset Alignment
+            </h2>
+
+            <p class="section-description">
+                Deterministic checks show which
+                headline and description assets
+                receive stronger or weaker direct
+                support from the landing page.
+            </p>
+
+            <div
+                id="assetResults"
+                class="asset-section"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="footer">
+
+        AdAlign AI — AI-assisted evaluation.
+        Scores assess landing-page alignment
+        and do not predict actual conversion rate.
+
+    </footer>
+
+</div>
+
+
+<script>
+
+    function parseAssets(text) {
+
+        return text
+            .split("\n")
+            .map(
+                item => item.trim()
+            )
+            .filter(
+                item => item.length > 0
+            );
+    }
+
+
+    function scoreLabel(score) {
+
+        if (score >= 70) {
+            return {
+                text: "Strong",
+                className: "strong"
+            };
+        }
+
+        if (score >= 40) {
+            return {
+                text: "Moderate",
+                className: "moderate"
+            };
+        }
+
+        return {
+            text: "Weak",
+            className: "weak"
+        };
+    }
+
+
+    function showStatus(
+        type,
+        message
+    ) {
+
+        const statusBox =
+            document.getElementById(
+                "statusBox"
+            );
+
+        statusBox.className =
+            `status-box ${type}`;
+
+        if (type === "loading") {
+
+            statusBox.innerHTML =
+                `<span class="loader"></span>${message}`;
+
+        } else {
+
+            statusBox.textContent =
+                message;
+        }
+    }
+
+
+    function hideStatus() {
+
+        const statusBox =
+            document.getElementById(
+                "statusBox"
+            );
+
+        statusBox.className =
+            "status-box";
+
+        statusBox.textContent =
+            "";
+    }
+
+
+    function createSummary(
+        data
+    ) {
+
+        const summarySection =
+            document.getElementById(
+                "summarySection"
+            );
+
+        const summaryGrid =
+            document.getElementById(
+                "summaryGrid"
+            );
+
+        summaryGrid.innerHTML =
+            "";
+
+
+        const headlineCount =
+            data.input.headlines.length;
+
+        const descriptionCount =
+            data.input.descriptions.length;
+
+        const headlineAverage =
+            data.deterministic_analysis
+                .headline_average_score ?? 0;
+
+        const descriptionAverage =
+            data.deterministic_analysis
+                .description_average_score ?? 0;
+
+
+        const summaryItems = [
+            {
+                label: "Headline Assets",
+                value: headlineCount
+            },
+            {
+                label: "Description Assets",
+                value: descriptionCount
+            },
+            {
+                label: "Headline Direct Match",
+                value: `${headlineAverage}/100`
+            },
+            {
+                label: "Description Direct Match",
+                value: `${descriptionAverage}/100`
+            }
+        ];
+
+
+        summaryItems.forEach(
+            item => {
+
+                const box =
+                    document.createElement(
+                        "div"
+                    );
+
+                box.className =
+                    "summary-item";
+
+
+                const label =
+                    document.createElement(
+                        "div"
+                    );
+
+                label.className =
+                    "summary-label";
+
+                label.textContent =
+                    item.label;
+
+
+                const value =
+                    document.createElement(
+                        "div"
+                    );
+
+                value.className =
+                    "summary-value";
+
+                value.textContent =
+                    item.value;
+
+
+                box.appendChild(
+                    label
+                );
+
+                box.appendChild(
+                    value
+                );
+
+                summaryGrid.appendChild(
+                    box
+                );
+            }
+        );
+
+
+        summarySection.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    function createScoreCards(
+        evaluation
+    ) {
+
+        const resultsSection =
+            document.getElementById(
+                "resultsSection"
+            );
+
+        const scoreGrid =
+            document.getElementById(
+                "scoreGrid"
+            );
+
+        scoreGrid.innerHTML =
+            "";
+
+
+        Object.entries(
+            evaluation
+        ).forEach(
+            ([key, dimension]) => {
+
+                const score =
+                    Number(
+                        dimension.score
+                    ) || 0;
+
+                const labelInfo =
+                    scoreLabel(
+                        score
+                    );
+
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+                card.className =
+                    "score-card";
+
+
+                const header =
+                    document.createElement(
+                        "div"
+                    );
+
+                header.className =
+                    "score-card-header";
+
+
+                const title =
+                    document.createElement(
+                        "h3"
+                    );
+
+                title.textContent =
+                    dimension.name || key;
+
+
+                const scoreNumber =
+                    document.createElement(
+                        "div"
+                    );
+
+                scoreNumber.className =
+                    "score-number";
+
+                scoreNumber.textContent =
+                    `${score}/100`;
+
+
+                header.appendChild(
+                    title
+                );
+
+                header.appendChild(
+                    scoreNumber
+                );
+
+
+                const label =
+                    document.createElement(
+                        "span"
+                    );
+
+                label.className =
+                    `score-label ${labelInfo.className}`;
+
+                label.textContent =
+                    labelInfo.text;
+
+
+                const progressBackground =
+                    document.createElement(
+                        "div"
+                    );
+
+                progressBackground.className =
+                    "progress-background";
+
+
+                const progressBar =
+                    document.createElement(
+                        "div"
+                    );
+
+                progressBar.className =
+                    "progress-bar";
+
+                progressBar.style.width =
+                    `${Math.min(score, 100)}%`;
+
+
+                progressBackground.appendChild(
+                    progressBar
+                );
+
+
+                const explanation =
+                    document.createElement(
+                        "p"
+                    );
+
+                explanation.textContent =
+                    dimension.explanation || "";
+
+
+                card.appendChild(
+                    header
+                );
+
+                card.appendChild(
+                    label
+                );
+
+                card.appendChild(
+                    progressBackground
+                );
+
+                card.appendChild(
+                    explanation
+                );
+
+
+                if (
+                    dimension.recommendation
+                ) {
+
+                    const recommendation =
+                        document.createElement(
+                            "div"
+                        );
+
+                    recommendation.className =
+                        "recommendation-box";
+
+
+                    const recommendationTitle =
+                        document.createElement(
+                            "div"
+                        );
+
+                    recommendationTitle.className =
+                        "recommendation-title";
+
+                    recommendationTitle.textContent =
+                        "Recommendation";
+
+
+                    const recommendationText =
+                        document.createElement(
+                            "div"
+                        );
+
+                    recommendationText.textContent =
+                        dimension.recommendation;
+
+
+                    recommendation.appendChild(
+                        recommendationTitle
+                    );
+
+                    recommendation.appendChild(
+                        recommendationText
+                    );
+
+                    card.appendChild(
+                        recommendation
+                    );
+                }
+
+
+                scoreGrid.appendChild(
+                    card
+                );
+            }
+        );
+
+
+        resultsSection.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    function createAssetCard(
+        asset
+    ) {
+
+        const card =
+            document.createElement(
+                "div"
+            );
+
+        card.className =
+            "asset-card";
+
+
+        const text =
+            document.createElement(
+                "div"
+            );
+
+        text.className =
+            "asset-text";
+
+        text.textContent =
+            asset.text || "";
+
+
+        const score =
+            document.createElement(
+                "div"
+            );
+
+        score.className =
+            "asset-score";
+
+        score.textContent =
+            `Direct landing-page match: ${
+                asset.match_score ?? 0
+            }/100`;
+
+
+        card.appendChild(
+            text
+        );
+
+        card.appendChild(
+            score
+        );
+
+
+        return card;
+    }
+
+
+    function createAssetResults(
+        deterministicAnalysis
+    ) {
+
+        const assetSection =
+            document.getElementById(
+                "assetSection"
+            );
+
+        const assetResults =
+            document.getElementById(
+                "assetResults"
+            );
+
+        assetResults.innerHTML =
+            "";
+
+
+        const headlineGroup =
+            document.createElement(
+                "div"
+            );
+
+        headlineGroup.className =
+            "asset-group";
+
+
+        const headlineTitle =
+            document.createElement(
+                "h3"
+            );
+
+        headlineTitle.textContent =
+            "Headline Assets";
+
+
+        headlineGroup.appendChild(
+            headlineTitle
+        );
+
+
+        const headlineResults =
+            deterministicAnalysis
+                .headline_results || [];
+
+
+        headlineResults.forEach(
+            asset => {
+
+                headlineGroup.appendChild(
+                    createAssetCard(
+                        asset
+                    )
+                );
+            }
+        );
+
+
+        const descriptionGroup =
+            document.createElement(
+                "div"
+            );
+
+        descriptionGroup.className =
+            "asset-group";
+
+
+        const descriptionTitle =
+            document.createElement(
+                "h3"
+            );
+
+        descriptionTitle.textContent =
+            "Description Assets";
+
+
+        descriptionGroup.appendChild(
+            descriptionTitle
+        );
+
+
+        const descriptionResults =
+            deterministicAnalysis
+                .description_results || [];
+
+
+        descriptionResults.forEach(
+            asset => {
+
+                descriptionGroup.appendChild(
+                    createAssetCard(
+                        asset
+                    )
+                );
+            }
+        );
+
+
+        assetResults.appendChild(
+            headlineGroup
+        );
+
+        assetResults.appendChild(
+            descriptionGroup
+        );
+
+
+        assetSection.classList.remove(
+            "hidden"
+        );
+    }
+
+
+    async function analyzeCampaign() {
+
+        const url =
+            document
+                .getElementById(
+                    "url"
+                )
+                .value
+                .trim();
+
+
+        const keyword =
+            document
+                .getElementById(
+                    "keyword"
+                )
+                .value
+                .trim();
+
+
+        const headlines =
+            parseAssets(
+                document
+                    .getElementById(
+                        "headlines"
+                    )
+                    .value
+            );
+
+
+        const descriptions =
+            parseAssets(
+                document
+                    .getElementById(
+                        "descriptions"
+                    )
+                    .value
+            );
+
+
+        if (!url) {
+
+            showStatus(
+                "error",
+                "Please enter a landing page URL."
+            );
+
+            return;
+        }
+
+
+        if (!keyword) {
+
+            showStatus(
+                "error",
+                "Please enter a target keyword."
+            );
+
+            return;
+        }
+
+
+        if (
+            headlines.length === 0
+        ) {
+
+            showStatus(
+                "error",
+                "Please enter at least one headline."
+            );
+
+            return;
+        }
+
+
+        if (
+            descriptions.length === 0
+        ) {
+
+            showStatus(
+                "error",
+                "Please enter at least one description."
+            );
+
+            return;
+        }
+
+
+        const button =
+            document.getElementById(
+                "analyzeButton"
+            );
+
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Analyzing...";
+
+
+        document
+            .getElementById(
+                "summarySection"
+            )
+            .classList
+            .add(
+                "hidden"
+            );
+
+
+        document
+            .getElementById(
+                "resultsSection"
+            )
+            .classList
+            .add(
+                "hidden"
+            );
+
+
+        document
+            .getElementById(
+                "assetSection"
+            )
+            .classList
+            .add(
+                "hidden"
+            );
+
+
+        showStatus(
+            "loading",
+            "Crawling the landing page and running the AI evaluation. This may take a little while."
+        );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/analyze",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                {
+                                    url:
+                                        url,
+
+                                    keyword:
+                                        keyword,
+
+                                    headlines:
+                                        headlines,
+
+                                    descriptions:
+                                        descriptions
+                                }
+                            )
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.detail ||
+                    "The analysis could not be completed."
+                );
+            }
+
+
+            createSummary(
+                data
+            );
+
+
+            createScoreCards(
+                data.evaluation
+            );
+
+
+            createAssetResults(
+                data.deterministic_analysis
+            );
+
+
+            showStatus(
+                "success",
+                "Analysis completed successfully."
+            );
+
+
+            document
+                .getElementById(
+                    "resultsSection"
+                )
+                .scrollIntoView(
+                    {
+                        behavior:
+                            "smooth"
+                    }
+                );
+
+        }
+
+        catch (error) {
+
+            showStatus(
+                "error",
+                error.message
+            );
+
+        }
+
+        finally {
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Analyze Landing Page";
+        }
+    }
+
+</script>
+
+</body>
+</html>
