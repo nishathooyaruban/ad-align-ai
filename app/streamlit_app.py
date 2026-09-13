@@ -1,3 +1,4 @@
+import hmac
 import sys
 from pathlib import Path
 
@@ -40,6 +41,79 @@ st.set_page_config(
     page_icon="🎯",
     layout="wide",
 )
+
+
+# -------------------------------------------------
+# Private access gate
+# -------------------------------------------------
+
+def require_app_password():
+    """
+    Require the shared application password stored in
+    Streamlit Secrets as APP_PASSWORD.
+    """
+
+    try:
+        configured_password = str(
+            st.secrets["APP_PASSWORD"]
+        )
+    except (KeyError, FileNotFoundError):
+        st.error(
+            "App access is not configured yet. "
+            "Please contact the app owner."
+        )
+        st.stop()
+
+    if st.session_state.get(
+        "adalign_authenticated",
+        False,
+    ):
+        return
+
+    st.title(
+        "🔒 AdAlign AI"
+    )
+
+    st.write(
+        "This demo is private. Enter the access "
+        "password to continue."
+    )
+
+    entered_password = st.text_input(
+        "Access password",
+        type="password",
+    )
+
+    unlock_button = st.button(
+        "Unlock AdAlign AI",
+        type="primary",
+        use_container_width=True,
+    )
+
+    if unlock_button:
+
+        if (
+            entered_password
+            and hmac.compare_digest(
+                entered_password,
+                configured_password,
+            )
+        ):
+            st.session_state[
+                "adalign_authenticated"
+            ] = True
+
+            st.rerun()
+
+        else:
+            st.error(
+                "Incorrect password."
+            )
+
+    st.stop()
+
+
+require_app_password()
 
 
 # -------------------------------------------------
@@ -813,8 +887,9 @@ if analyze_button:
             "The analysis could not be completed."
         )
 
-        st.exception(
-            error
+        st.caption(
+            "Please check the URL and try again. "
+            "If the problem continues, contact the app owner."
         )
 
 
